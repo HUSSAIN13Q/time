@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hours of the Week</title>
+
+    <!-- Inter Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        --card-bg: rgba(255, 255, 255, 0.9);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: url("https://images.unsplash.com/photo-1521790945508-bf2a36314e85?auto=format&fit=crop&w=2100&q=80")
+          no-repeat center center fixed;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      .container {
+        width: 100%;
+        max-width: 900px;
+      }
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        padding: 2rem;
+      }
+      .header h1 {
+        text-align: center;
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+      }
+      .totals {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+      }
+      .totals div {
+        background: #fff;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-weight: 600;
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+      }
+      th {
+        text-align: left;
+        padding: 0.5rem 1rem;
+        color: #555;
+        font-weight: 600;
+      }
+      td {
+        background: #fff;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        vertical-align: middle;
+      }
+      tr:hover td {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        transition: all 0.2s ease;
+      }
+      input[type="time"] {
+        width: 140px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+      }
+      input[type="time"]:hover {
+        border-color: #6a11cb;
+      }
+      input[type="time"][readonly] {
+        background: #f5f5f5;
+        cursor: default;
+      }
+      .extra {
+        font-weight: 700;
+        text-align: center;
+        display: block;
+      }
+      .positive {
+        color: #10b981;
+      }
+      .negative {
+        color: #d32f2f;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #555;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="header"><h1>Hours of the Week</h1></div>
+        <div class="totals">
+          <div>Total Worked: <span id="totalWorked">--:--</span></div>
+          <div>
+            Total Extra: <span id="totalExtra" class="extra">--:--</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Arrival</th>
+              <th>Suggested Leave</th>
+              <th>Actual Leave</th>
+              <th>Extra</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-day="Sunday">
+              <td>Sunday</td>
+              <td><input type="time" class="arrival" value="08:00" /></td>
+              <td><input type="time" class="suggested" readonly /></td>
+              <td><input type="time" class="actual" /></td>
+              <td><span class="extra">--:--</span></td>
+            </tr>
+            <tr data-day="Monday">
+              <td>Monday</td>
+              <td><input type="time" class="arrival" value="08:00" /></td>
+              <td><input type="time" class="suggested" readonly /></td>
+              <td><input type="time" class="actual" /></td>
+              <td><span class="extra">--:--</span></td>
+            </tr>
+            <tr data-day="Tuesday">
+              <td>Tuesday</td>
+              <td><input type="time" class="arrival" value="08:00" /></td>
+              <td><input type="time" class="suggested" readonly /></td>
+              <td><input type="time" class="actual" /></td>
+              <td><span class="extra">--:--</span></td>
+            </tr>
+            <tr data-day="Wednesday">
+              <td>Wednesday</td>
+              <td><input type="time" class="arrival" value="08:00" /></td>
+              <td><input type="time" class="suggested" readonly /></td>
+              <td><input type="time" class="actual" /></td>
+              <td><span class="extra">--:--</span></td>
+            </tr>
+            <tr data-day="Thursday">
+              <td>Thursday</td>
+              <td><input type="time" class="arrival" value="08:00" /></td>
+              <td><input type="time" class="suggested" readonly /></td>
+              <td><input type="time" class="actual" /></td>
+              <td><span class="extra">--:--</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="footer">Customize your hours above.</div>
+      </div>
+    </div>
+
+    <script>
+      const rows = document.querySelectorAll("tbody tr");
+      function requiredMinutes(day) {
+        return day === "Thursday" ? 420 : 450;
+      }
+      function toHHMM(totalMin) {
+        const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
+        const mm = String(totalMin % 60).padStart(2, "0");
+        return `${hh}:${mm}`;
+      }
+      function calculateRow(row) {
+        const day = row.dataset.day;
+        const arr = row.querySelector(".arrival").value;
+        const sug = row.querySelector(".suggested");
+        const act = row.querySelector(".actual").value;
+        const extraSpan = row.querySelector(".extra");
+        if (!arr) return;
+        const [ah, am] = arr.split(":").map(Number);
+        const arrMin = ah * 60 + am;
+        const sugMin = arrMin + requiredMinutes(day);
+        sug.value = toHHMM(sugMin);
+        if (act) {
+          const [xh, xm] = act.split(":").map(Number);
+          const actualMin = xh * 60 + xm;
+          const diff = actualMin - sugMin;
+          extraSpan.textContent =
+            (diff >= 0 ? "+" : "-") + toHHMM(Math.abs(diff));
+          extraSpan.classList.remove("positive", "negative");
+          extraSpan.classList.add(diff >= 0 ? "positive" : "negative");
+          row.dataset.worked = actualMin - arrMin;
+          row.dataset.extra = diff;
+        } else {
+          extraSpan.textContent = "--:--";
+          extraSpan.classList.remove("positive", "negative");
+          row.dataset.worked = 0;
+          row.dataset.extra = 0;
+        }
+      }
+      function updateTotals() {
+        let totalW = 0,
+          totalE = 0;
+        rows.forEach((row) => {
+          const arr = row.querySelector(".arrival").value;
+          const act = row.querySelector(".actual").value;
+          if (arr && act) {
+            calculateRow(row);
+            totalW += Number(row.dataset.worked || 0);
+            totalE += Number(row.dataset.extra || 0);
+          }
+        });
+        document.getElementById("totalWorked").textContent = toHHMM(totalW);
+        const totalExtraEl = document.getElementById("totalExtra");
+        const sign = totalE >= 0 ? "+" : "-";
+        totalExtraEl.textContent = sign + toHHMM(Math.abs(totalE));
+        totalExtraEl.classList.remove("positive", "negative");
+        totalExtraEl.classList.add(totalE >= 0 ? "positive" : "negative");
+      }
+      rows.forEach((row) => {
+        row.querySelector(".arrival").addEventListener("input", () => {
+          calculateRow(row);
+          updateTotals();
+        });
+        row.querySelector(".actual").addEventListener("input", () => {
+          calculateRow(row);
+          updateTotals();
+        });
+        calculateRow(row);
+      });
+      updateTotals();
+    </script>
+  </body>
+</html>
