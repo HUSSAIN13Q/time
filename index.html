@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Burgan attendance tracker</title>
+    <title>Hours of the Week</title>
 
     <!-- Inter Font -->
     <link
@@ -66,12 +66,9 @@
         color: #333;
         margin: 0.5rem;
       }
-
-      /* Make table scroll horizontally on narrow screens */
       .table-wrapper {
         overflow-x: auto;
       }
-
       table {
         width: 100%;
         border-collapse: separate;
@@ -141,7 +138,7 @@
   <body>
     <div class="container">
       <div class="card">
-        <div class="header"><h1>Burgan attendance tracker</h1></div>
+        <div class="header"><h1>Hours of the Week</h1></div>
         <div class="totals">
           <div>Total Worked: <span id="totalWorked">--:--</span></div>
           <div>
@@ -162,35 +159,35 @@
             <tbody>
               <tr data-day="Sunday">
                 <td>Sunday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Monday">
                 <td>Monday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Tuesday">
                 <td>Tuesday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Wednesday">
                 <td>Wednesday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Thursday">
                 <td>Thursday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
@@ -290,26 +287,28 @@
         if (!raw) return;
         const data = JSON.parse(raw);
         rows.forEach((r) => {
-          const d = data[r.dataset.day] || {};
-          r.querySelector(".arrival").value = d.arrival || "";
-          r.querySelector(".actual").value = d.actual || "";
+          const day = r.dataset.day;
+          if (data[day]) {
+            if (data[day].arrival)
+              r.querySelector(".arrival").value = data[day].arrival;
+            if (data[day].actual)
+              r.querySelector(".actual").value = data[day].actual;
+          }
         });
       }
 
-      // wire up
+      // Initialize and wire
+      load();
       rows.forEach((row) => {
+        calculateRow(row);
         ["arrival", "actual"].forEach((cls) => {
-          row.querySelector("." + cls).addEventListener("change", () => {
+          row.querySelector(`.${cls}`).addEventListener("change", () => {
             calculateRow(row);
             updateTotals();
             save();
           });
         });
-        calculateRow(row);
       });
-
-      // init
-      load();
       updateTotals();
     </script>
   </body>
