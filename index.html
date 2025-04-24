@@ -55,6 +55,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-around;
+        align-items: center;
         margin-bottom: 2rem;
       }
       .totals div {
@@ -66,9 +67,26 @@
         color: #333;
         margin: 0.5rem;
       }
+      #resetBtn {
+        background: var(--primary-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin: 0.5rem;
+        transition: transform 0.2s;
+      }
+      #resetBtn:hover {
+        transform: translateY(-2px);
+      }
+
       .table-wrapper {
         overflow-x: auto;
       }
+
       table {
         width: 100%;
         border-collapse: separate;
@@ -117,16 +135,17 @@
       .negative {
         color: #d32f2f;
       }
+
       .footer {
         text-align: center;
         margin-top: 1.5rem;
         color: #555;
         font-size: 0.9rem;
       }
+
       @media (max-width: 600px) {
         .totals {
           flex-direction: column;
-          align-items: stretch;
         }
         input[type="time"] {
           width: 100%;
@@ -144,6 +163,7 @@
           <div>
             Total Extra: <span id="totalExtra" class="extra">--:--</span>
           </div>
+          <button id="resetBtn">Reset</button>
         </div>
         <div class="table-wrapper">
           <table>
@@ -159,35 +179,35 @@
             <tbody>
               <tr data-day="Sunday">
                 <td>Sunday</td>
-                <td><input type="time" class="arrival" value="08:00" /></td>
+                <td><input type="time" class="arrival" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Monday">
                 <td>Monday</td>
-                <td><input type="time" class="arrival" value="08:00" /></td>
+                <td><input type="time" class="arrival" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Tuesday">
                 <td>Tuesday</td>
-                <td><input type="time" class="arrival" value="08:00" /></td>
+                <td><input type="time" class="arrival" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Wednesday">
                 <td>Wednesday</td>
-                <td><input type="time" class="arrival" value="08:00" /></td>
+                <td><input type="time" class="arrival" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Thursday">
                 <td>Thursday</td>
-                <td><input type="time" class="arrival" value="08:00" /></td>
+                <td><input type="time" class="arrival" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
@@ -202,8 +222,9 @@
     <script>
       const STORAGE_KEY = "hoursOfWeekData";
       const rows = document.querySelectorAll("tbody tr");
-      const totalWorkedEl = document.getElementById("totalWorked");
-      const totalExtraEl = document.getElementById("totalExtra");
+      const totalWorked = document.getElementById("totalWorked");
+      const totalExtra = document.getElementById("totalExtra");
+      const resetBtn = document.getElementById("resetBtn");
 
       function requiredMinutes(day) {
         return day === "Thursday" ? 420 : 450;
@@ -213,6 +234,7 @@
         const m = String(mins % 60).padStart(2, "0");
         return `${h}:${m}`;
       }
+
       function calculateRow(row) {
         const day = row.dataset.day;
         const arrI = row.querySelector(".arrival");
@@ -253,22 +275,22 @@
       }
 
       function updateTotals() {
-        let totW = 0,
-          totE = 0;
+        let w = 0,
+          e = 0;
         rows.forEach((r) => {
           const a = r.querySelector(".arrival").value;
           const x = r.querySelector(".actual").value;
           if (a && x) {
             calculateRow(r);
-            totW += Number(r.dataset.worked);
-            totE += Number(r.dataset.extra);
+            w += Number(r.dataset.worked);
+            e += Number(r.dataset.extra);
           }
         });
-        totalWorkedEl.textContent = toHHMM(totW);
-        const s = totE >= 0 ? "+" : "-";
-        totalExtraEl.textContent = s + toHHMM(Math.abs(totE));
-        totalExtraEl.classList.toggle("positive", totE >= 0);
-        totalExtraEl.classList.toggle("negative", totE < 0);
+        totalWorked.textContent = toHHMM(w);
+        const s = e >= 0 ? "+" : "-";
+        totalExtra.textContent = s + toHHMM(Math.abs(e));
+        totalExtra.classList.toggle("positive", e >= 0);
+        totalExtra.classList.toggle("negative", e < 0);
       }
 
       function save() {
@@ -287,23 +309,30 @@
         if (!raw) return;
         const data = JSON.parse(raw);
         rows.forEach((r) => {
-          const day = r.dataset.day;
-          if (data[day]) {
-            if (data[day].arrival)
-              r.querySelector(".arrival").value = data[day].arrival;
-            if (data[day].actual)
-              r.querySelector(".actual").value = data[day].actual;
-          }
+          const d = data[r.dataset.day] || {};
+          if (d.arrival) r.querySelector(".arrival").value = d.arrival;
+          if (d.actual) r.querySelector(".actual").value = d.actual;
         });
       }
 
-      // Initialize and wire
+      // Reset handler
+      resetBtn.addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        rows.forEach((r) => {
+          r.querySelector(".arrival").value = "";
+          r.querySelector(".actual").value = "";
+          calculateRow(r);
+        });
+        updateTotals();
+      });
+
+      // Init
       load();
-      rows.forEach((row) => {
-        calculateRow(row);
+      rows.forEach((r) => {
+        calculateRow(r);
         ["arrival", "actual"].forEach((cls) => {
-          row.querySelector(`.${cls}`).addEventListener("change", () => {
-            calculateRow(row);
+          r.querySelector(`.${cls}`).addEventListener("change", () => {
+            calculateRow(r);
             updateTotals();
             save();
           });
