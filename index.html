@@ -53,6 +53,7 @@
       }
       .totals {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-around;
         margin-bottom: 2rem;
       }
@@ -63,7 +64,14 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         font-weight: 600;
         color: #333;
+        margin: 0.5rem;
       }
+
+      /* Make table scroll horizontally on narrow screens */
+      .table-wrapper {
+        overflow-x: auto;
+      }
+
       table {
         width: 100%;
         border-collapse: separate;
@@ -118,6 +126,16 @@
         color: #555;
         font-size: 0.9rem;
       }
+      @media (max-width: 600px) {
+        .totals {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        input[type="time"] {
+          width: 100%;
+          max-width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -130,126 +148,168 @@
             Total Extra: <span id="totalExtra" class="extra">--:--</span>
           </div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>Arrival</th>
-              <th>Suggested Leave</th>
-              <th>Actual Leave</th>
-              <th>Extra</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-day="Sunday">
-              <td>Sunday</td>
-              <td><input type="time" class="arrival" value="08:00" /></td>
-              <td><input type="time" class="suggested" readonly /></td>
-              <td><input type="time" class="actual" /></td>
-              <td><span class="extra">--:--</span></td>
-            </tr>
-            <tr data-day="Monday">
-              <td>Monday</td>
-              <td><input type="time" class="arrival" value="08:00" /></td>
-              <td><input type="time" class="suggested" readonly /></td>
-              <td><input type="time" class="actual" /></td>
-              <td><span class="extra">--:--</span></td>
-            </tr>
-            <tr data-day="Tuesday">
-              <td>Tuesday</td>
-              <td><input type="time" class="arrival" value="08:00" /></td>
-              <td><input type="time" class="suggested" readonly /></td>
-              <td><input type="time" class="actual" /></td>
-              <td><span class="extra">--:--</span></td>
-            </tr>
-            <tr data-day="Wednesday">
-              <td>Wednesday</td>
-              <td><input type="time" class="arrival" value="08:00" /></td>
-              <td><input type="time" class="suggested" readonly /></td>
-              <td><input type="time" class="actual" /></td>
-              <td><span class="extra">--:--</span></td>
-            </tr>
-            <tr data-day="Thursday">
-              <td>Thursday</td>
-              <td><input type="time" class="arrival" value="08:00" /></td>
-              <td><input type="time" class="suggested" readonly /></td>
-              <td><input type="time" class="actual" /></td>
-              <td><span class="extra">--:--</span></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Arrival</th>
+                <th>Suggested Leave</th>
+                <th>Actual Leave</th>
+                <th>Extra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-day="Sunday">
+                <td>Sunday</td>
+                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="suggested" readonly /></td>
+                <td><input type="time" class="actual" /></td>
+                <td><span class="extra">--:--</span></td>
+              </tr>
+              <tr data-day="Monday">
+                <td>Monday</td>
+                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="suggested" readonly /></td>
+                <td><input type="time" class="actual" /></td>
+                <td><span class="extra">--:--</span></td>
+              </tr>
+              <tr data-day="Tuesday">
+                <td>Tuesday</td>
+                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="suggested" readonly /></td>
+                <td><input type="time" class="actual" /></td>
+                <td><span class="extra">--:--</span></td>
+              </tr>
+              <tr data-day="Wednesday">
+                <td>Wednesday</td>
+                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="suggested" readonly /></td>
+                <td><input type="time" class="actual" /></td>
+                <td><span class="extra">--:--</span></td>
+              </tr>
+              <tr data-day="Thursday">
+                <td>Thursday</td>
+                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="suggested" readonly /></td>
+                <td><input type="time" class="actual" /></td>
+                <td><span class="extra">--:--</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="footer">Customize your hours above.</div>
       </div>
     </div>
 
     <script>
+      const STORAGE_KEY = "hoursOfWeekData";
       const rows = document.querySelectorAll("tbody tr");
+      const totalWorkedEl = document.getElementById("totalWorked");
+      const totalExtraEl = document.getElementById("totalExtra");
+
       function requiredMinutes(day) {
         return day === "Thursday" ? 420 : 450;
       }
-      function toHHMM(totalMin) {
-        const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
-        const mm = String(totalMin % 60).padStart(2, "0");
-        return `${hh}:${mm}`;
+      function toHHMM(mins) {
+        const h = String(Math.floor(mins / 60)).padStart(2, "0");
+        const m = String(mins % 60).padStart(2, "0");
+        return `${h}:${m}`;
       }
       function calculateRow(row) {
         const day = row.dataset.day;
-        const arr = row.querySelector(".arrival").value;
-        const sug = row.querySelector(".suggested");
-        const act = row.querySelector(".actual").value;
-        const extraSpan = row.querySelector(".extra");
-        if (!arr) return;
-        const [ah, am] = arr.split(":").map(Number);
+        const arrI = row.querySelector(".arrival");
+        const sugI = row.querySelector(".suggested");
+        const actI = row.querySelector(".actual");
+        const extraS = row.querySelector(".extra");
+
+        if (!arrI.value) {
+          sugI.value = "";
+          extraS.textContent = "--:--";
+          extraS.classList.remove("positive", "negative");
+          row.dataset.worked = 0;
+          row.dataset.extra = 0;
+          return;
+        }
+
+        const [ah, am] = arrI.value.split(":").map(Number);
         const arrMin = ah * 60 + am;
         const sugMin = arrMin + requiredMinutes(day);
-        sug.value = toHHMM(sugMin);
-        if (act) {
-          const [xh, xm] = act.split(":").map(Number);
-          const actualMin = xh * 60 + xm;
-          const diff = actualMin - sugMin;
-          extraSpan.textContent =
-            (diff >= 0 ? "+" : "-") + toHHMM(Math.abs(diff));
-          extraSpan.classList.remove("positive", "negative");
-          extraSpan.classList.add(diff >= 0 ? "positive" : "negative");
-          row.dataset.worked = actualMin - arrMin;
+        sugI.value = toHHMM(sugMin);
+
+        if (actI.value) {
+          const [xh, xm] = actI.value.split(":").map(Number);
+          const actMin = xh * 60 + xm;
+          const diff = actMin - sugMin;
+          const sign = diff >= 0 ? "+" : "-";
+          extraS.textContent = sign + toHHMM(Math.abs(diff));
+          extraS.classList.toggle("positive", diff >= 0);
+          extraS.classList.toggle("negative", diff < 0);
+          row.dataset.worked = actMin - arrMin;
           row.dataset.extra = diff;
         } else {
-          extraSpan.textContent = "--:--";
-          extraSpan.classList.remove("positive", "negative");
+          extraS.textContent = "--:--";
+          extraS.classList.remove("positive", "negative");
           row.dataset.worked = 0;
           row.dataset.extra = 0;
         }
       }
+
       function updateTotals() {
-        let totalW = 0,
-          totalE = 0;
-        rows.forEach((row) => {
-          const arr = row.querySelector(".arrival").value;
-          const act = row.querySelector(".actual").value;
-          if (arr && act) {
-            calculateRow(row);
-            totalW += Number(row.dataset.worked || 0);
-            totalE += Number(row.dataset.extra || 0);
+        let totW = 0,
+          totE = 0;
+        rows.forEach((r) => {
+          const a = r.querySelector(".arrival").value;
+          const x = r.querySelector(".actual").value;
+          if (a && x) {
+            calculateRow(r);
+            totW += Number(r.dataset.worked);
+            totE += Number(r.dataset.extra);
           }
         });
-        document.getElementById("totalWorked").textContent = toHHMM(totalW);
-        const totalExtraEl = document.getElementById("totalExtra");
-        const sign = totalE >= 0 ? "+" : "-";
-        totalExtraEl.textContent = sign + toHHMM(Math.abs(totalE));
-        totalExtraEl.classList.remove("positive", "negative");
-        totalExtraEl.classList.add(totalE >= 0 ? "positive" : "negative");
+        totalWorkedEl.textContent = toHHMM(totW);
+        const s = totE >= 0 ? "+" : "-";
+        totalExtraEl.textContent = s + toHHMM(Math.abs(totE));
+        totalExtraEl.classList.toggle("positive", totE >= 0);
+        totalExtraEl.classList.toggle("negative", totE < 0);
       }
-      rows.forEach((row) => {
-        row.querySelector(".arrival").addEventListener("input", () => {
-          calculateRow(row);
-          updateTotals();
+
+      function save() {
+        const data = {};
+        rows.forEach((r) => {
+          data[r.dataset.day] = {
+            arrival: r.querySelector(".arrival").value,
+            actual: r.querySelector(".actual").value,
+          };
         });
-        row.querySelector(".actual").addEventListener("input", () => {
-          calculateRow(row);
-          updateTotals();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function load() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        rows.forEach((r) => {
+          const d = data[r.dataset.day] || {};
+          r.querySelector(".arrival").value = d.arrival || "";
+          r.querySelector(".actual").value = d.actual || "";
+        });
+      }
+
+      // wire up
+      rows.forEach((row) => {
+        ["arrival", "actual"].forEach((cls) => {
+          row.querySelector("." + cls).addEventListener("change", () => {
+            calculateRow(row);
+            updateTotals();
+            save();
+          });
         });
         calculateRow(row);
       });
+
+      // init
+      load();
       updateTotals();
     </script>
   </body>
