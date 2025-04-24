@@ -179,35 +179,35 @@
             <tbody>
               <tr data-day="Sunday">
                 <td>Sunday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Monday">
                 <td>Monday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Tuesday">
                 <td>Tuesday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Wednesday">
                 <td>Wednesday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
               </tr>
               <tr data-day="Thursday">
                 <td>Thursday</td>
-                <td><input type="time" class="arrival" /></td>
+                <td><input type="time" class="arrival" value="08:00" /></td>
                 <td><input type="time" class="suggested" readonly /></td>
                 <td><input type="time" class="actual" /></td>
                 <td><span class="extra">--:--</span></td>
@@ -319,7 +319,7 @@
       resetBtn.addEventListener("click", () => {
         localStorage.removeItem(STORAGE_KEY);
         rows.forEach((r) => {
-          r.querySelector(".arrival").value = "";
+          r.querySelector(".arrival").value = "08:00";
           r.querySelector(".actual").value = "";
           calculateRow(r);
         });
