@@ -143,6 +143,57 @@
         font-size: 0.9rem;
       }
 
+      /*===== Responsive Breakpoints =====*/
+
+      /* Small phones (≤ 400px) */
+      @media (max-width: 400px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+        #resetBtn {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.9rem;
+        }
+        input[type="time"] {
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Portrait tablets / small desktops (401px–768px) */
+      @media (min-width: 401px) and (max-width: 768px) {
+        .totals div {
+          padding: 0.8rem 1.5rem;
+          font-size: 0.95rem;
+        }
+        input[type="time"] {
+          width: 120px;
+        }
+      }
+
+      /* Large desktops (≥ 1200px) */
+      @media (min-width: 1200px) {
+        .container {
+          max-width: 1100px;
+        }
+        .card {
+          padding: 3rem;
+        }
+        table th,
+        table td {
+          padding: 1rem 1.5rem;
+        }
+      }
+
+      /* High-resolution (Retina) displays */
+      @media only screen and (-webkit-min-device-pixel-ratio: 2),
+        only screen and (min-resolution: 192dpi) {
+        body {
+          /* swap in a higher-res background if you have one */
+          background-image: url("https://images.unsplash.com/photo-1521790945508-bf2a36314e85?auto=format&fit=crop&w=4200&q=80");
+        }
+      }
+
+      /* Already had this, but now mobile-first */
       @media (max-width: 600px) {
         .totals {
           flex-direction: column;
